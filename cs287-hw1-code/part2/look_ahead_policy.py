@@ -40,8 +40,11 @@ class LookAheadPolicy(object):
            """
         assert isinstance(self.env.action_space, spaces.Discrete)
         act_dim = self.env.action_space.n
-        """ INSERT YOUR CODE HERE"""
-        raise NotImplementedError
+
+        actions = np.meshgrid(*([np.arange(act_dim)] * self.horizon))
+        actions = np.stack([action.flatten() for action in actions], axis=1).T
+        returns = self.get_returns(state, actions)
+        best_action = actions[0, np.argmax(returns)]
         return best_action
 
     def get_returns(self, state, actions):
@@ -52,8 +55,15 @@ class LookAheadPolicy(object):
         HINT: Make sure to take the discounting and done into acount!
         """
         assert self.env.vectorized
-        """ INSERT YOUR CODE HERE"""
-        raise NotImplementedError
+        assert self.horizon == actions.shape[0]
+        states = np.array([state] * actions.shape[1])
+        returns = 0
+
+        for h in range(self.horizon):
+            self.env.vec_set_state(states)
+            states, rewards, dones, _ = self.env.vec_step(actions[h, :])
+            returns += (self.discount**h) * rewards
+        returns += (self.discount ** self.horizon) * self._value_fun.get_values(states)
         return returns
 
     def update(self, actions):
