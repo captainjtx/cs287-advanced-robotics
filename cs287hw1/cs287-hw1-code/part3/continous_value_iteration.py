@@ -112,7 +112,7 @@ class ContinousStateValueIteration(object):
         v = self.value_fun.get_values(states)
         v_backups = rewards + self.discount * self.value_fun.get_values(next_states)
         loss = np.linalg.norm(v - v_backups)
-        return loss
+        return -loss
 
     def get_states_and_transitions(self):
         num_acts, num_states = self.num_acts, self.batch_size
@@ -134,7 +134,9 @@ class ContinousStateValueIteration(object):
             act_low, act_high = self.env.action_space.low, self.env.action_space.high
             actions = np.random.uniform(act_low, act_high, size=(num_acts, len(act_low)))
 
-        states = np.tile(states.T, num_acts).T
+        #states = np.tile(states.T, num_acts).T
+        # NOTE: the original tile will mess up with the actions
+        states = np.tile(states, num_acts).reshape(self.batch_size * num_acts, states.shape[1])
         actions = np.repeat(actions, num_states, axis=0)
         self.env.vec_set_state(states)
         next_states, rewards, dones, _ = self.env.vec_step(actions)
