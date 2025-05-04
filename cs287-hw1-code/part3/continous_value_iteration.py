@@ -2,7 +2,7 @@ from gym import spaces
 from utils.plot import rollout, plot_returns, plot_contour
 from utils.utils import upsample
 import logger
-import moviepy.editor as mpy
+from moviepy import *
 import autograd.numpy as np
 from utils.utils import AdamOptimizer
 import matplotlib.pyplot as plt
@@ -89,12 +89,12 @@ class ContinousStateValueIteration(object):
 
         if contours and contours[0] is not None:
             contours = list(upsample(np.array(contours), 10))
-            clip = mpy.ImageSequenceClip(contours, fps=10)
+            clip = ImageSequenceClip(contours, fps=10)
             clip.write_videofile('%s/contours_progress.mp4' % logger.get_dir())
 
         if videos:
             fps = int(10 / getattr(self.env, 'dt', 0.1))
-            clip = mpy.ImageSequenceClip(videos, fps=fps)
+            clip = ImageSequenceClip(videos, fps=fps)
             clip.write_videofile('%s/learning_progress.mp4' % logger.get_dir())
 
         plt.close()
@@ -107,7 +107,11 @@ class ContinousStateValueIteration(object):
         """
         states, next_states, rewards, dones = self.get_states_and_transitions()
         """ INSERT YOUR CODE HERE"""
-        raise NotImplementedError
+        self.value_fun.update(params)
+        #loss = np.linalg.norm(rewards + self.discount * self.value_fun.get_values(states) - self.value_fun.get_values(next_states))
+        v = self.value_fun.get_values(states)
+        v_backups = rewards + self.discount * self.value_fun.get_values(next_states)
+        loss = np.linalg.norm(v - v_backups)
         return loss
 
     def get_states_and_transitions(self):

@@ -78,9 +78,14 @@ class LookAheadPolicy(BaseLookAheadPolicy):
         num_acts = self.num_acts
         """ INSERT YOUR CODE HERE """
         if isinstance(self.env.action_space, spaces.Discrete):
-            raise NotImplementedError
+            actions = np.random.randint(self.env.action_space.n, size=[self.horizon, num_acts])
         else:
             assert num_acts is not None
-            raise NotImplementedError
+            act_dim = self.env.action_space.low.shape[0]
+            actions = np.random.uniform(self.env.action_space.low,
+                                          self.env.action_space.high,
+                                          size=(self.horizon, num_acts, act_dim))
+        rt = self.get_returns(state, actions)
+        best_action = actions[0, np.argmax(rt)]
 
         return best_action
