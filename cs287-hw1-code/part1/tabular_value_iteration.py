@@ -3,7 +3,7 @@ from utils.plot import plot_contour, rollout, plot_returns
 from utils.utils import upsample
 import logger
 import numpy as np
-import moviepy.editor as mpy
+from moviepy import * 
 import time
 
 
@@ -112,11 +112,11 @@ class ValueIteration(object):
 
         fps = int(4/getattr(self.env, 'dt', 0.1))
         if contours and contours[0] is not None:
-            clip = mpy.ImageSequenceClip(contours, fps=fps)
+            clip = ImageSequenceClip(contours, fps=fps)
             clip.write_videofile('%s/contours_progress.mp4' % logger.get_dir())
 
         if videos:
-            clip = mpy.ImageSequenceClip(videos, fps=fps)
+            clip = ImageSequenceClip(videos, fps=fps)
             clip.write_videofile('%s/roll_outs.mp4' % logger.get_dir())
 
         plt.close()
@@ -134,7 +134,8 @@ class ValueIteration(object):
 
         """ INSERT YOUR CODE HERE"""
         if self.policy_type == 'deterministic':
-            raise NotImplementedError
+            v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
+            next_v = np.max(v_backup, axis=1)
         elif self.policy_type == 'max_ent':
             raise NotImplementedError
             """ Your code ends here"""
@@ -155,7 +156,8 @@ class ValueIteration(object):
 
         """INSERT YOUR CODE HERE"""
         if self.policy_type == 'deterministic':
-            raise NotImplementedError
+            v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
+            pi = np.argmax(v_backup, axis=1)
         elif self.policy_type == 'max_ent':
             raise NotImplementedError
             """ Your code ends here"""

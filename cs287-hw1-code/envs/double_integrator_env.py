@@ -43,7 +43,7 @@ class DoubleIntegratorEnv(Env):
         next_states = self._states + np.stack([self._states[:, 1], actions[:, 0]], axis=-1) * self.dt
         rewards = -0.5 * (self._states[:, 0] ** 2 + self._states[:, 1] ** 2 + actions[:, 0] ** 2)
         dones = np.sum([(next_states[:, i] < l) + (next_states[:, i] > h) for i, (l, h)
-                        in enumerate(zip(self.observation_space.low, self.observation_space.high))], axis=0).astype(np.bool)
+                        in enumerate(zip(self.observation_space.low, self.observation_space.high))], axis=0).astype(bool)
         env_infos = dict()
         self._states = next_states
         rewards[dones] /= (1 - self.discount)

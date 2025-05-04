@@ -327,7 +327,7 @@ class DiscretizeWrapper(object):
         else:
             s, probs = self.vec_get_discrete_state_from_cont_state(next_obs)
         probs = np.array(probs).astype(np.float64)
-        idxs = np.random.multinomial(1, probs/np.sum(probs)).astype(np.bool)
+        idxs = np.random.multinomial(1, probs/np.sum(probs)).astype(bool)
         id_next_s = np.array(s)[idxs][0]
         return id_next_s, reward, done, info
 
@@ -338,7 +338,7 @@ class DiscretizeWrapper(object):
         else:
             s, probs = self.vec_get_discrete_state_from_cont_state(obs)
         probs = np.array(probs).astype(np.float64)
-        idxs = np.random.multinomial(1, probs/np.sum(probs)).astype(np.bool)
+        idxs = np.random.multinomial(1, probs/np.sum(probs)).astype(bool)
         id_s = np.argmax(idxs)
         return id_s
 
@@ -378,19 +378,19 @@ class DiscretizeWrapper(object):
         if isinstance(idx, Iterable): # probably if it's iterable
             vec = np.zeros((len(idx), size))
         else:
-            vec = np.zeros((size,), dtype=np.int)
+            vec = np.zeros((size,), dtype=int)
 
         num, i,  = idx, 0
         if base is None:
             base = self._state_bins_per_dim if state else self._act_bins_per_dim
         else:
             assert type(base) == int
-            base = np.ones((size,), dtype=np.int) * base
+            base = np.ones((size,), dtype=int) * base
         for i in range(size):
             vec[..., i] = num % base[i]
             num = num//base[i]
             i += 1
-        return vec.astype(np.int)
+        return vec.astype(int)
 
     def get_id_from_coordinates(self, vec, state=True):
         """
@@ -411,7 +411,7 @@ class DiscretizeWrapper(object):
         :return:
         """
         if type(discretization) is int:
-            bins_per_dim = np.ones_like(high, dtype=np.int) * discretization
+            bins_per_dim = np.ones_like(high, dtype=int) * discretization
             points = np.stack([np.linspace(l, h, discretization) for l, h in zip(low, high)])
         else:
             dim = high.shape[0]
@@ -419,13 +419,13 @@ class DiscretizeWrapper(object):
             if not isinstance(discretization[0], Iterable):
                 discretization = np.array(discretization)
                 assert high.shape == discretization.shape
-                bins_per_dim = discretization.astype(np.int)
+                bins_per_dim = discretization.astype(int)
                 points = np.ones((dim, np.max(discretization))) * (high[:, None] + 1e3)
                 for i, d in enumerate(discretization):
                     points[i, :d] = np.linspace(low[i], high[i], d)
 
             else:
-                bins_per_dim = np.zeros(high.shape, dtype=np.int)
+                bins_per_dim = np.zeros(high.shape, dtype=int)
                 points = np.ones((dim, np.max(discretization))) * (high + 1e3)
                 for i, d in enumerate(discretization):
                     assert (d[i, 0] == low).all() and (d[i, -1] == high).all()
@@ -434,7 +434,7 @@ class DiscretizeWrapper(object):
                     bins_per_dim[i] = bins
 
         points = points.astype(np.float32)
-        bins_per_dim = bins_per_dim.astype(np.int)
+        bins_per_dim = bins_per_dim.astype(int)
         return points, bins_per_dim
 
     def _build(self):
@@ -487,7 +487,7 @@ class DiscretizeWrapper(object):
             id_acts, id_obs = np.mgrid[:self.act_n, :self.obs_n].reshape(2, -1)
             n_points = len(id_acts)
             max_points = int(5e3)
-            n_iters = np.ceil(n_points/max_points).astype(np.int)
+            n_iters = np.ceil(n_points/max_points).astype(int)
             for i in range(n_iters):
                 self.vec_add_transitions(id_obs[i * max_points:(i+1) * max_points],
                                       id_acts[i * max_points:(i+1) * max_points])
