@@ -72,7 +72,7 @@ class DoubleIntegratorEnv(Env):
             self._ax.set_aspect('equal')
             self._canvas = FigureCanvas(self._fig)
 
-        self._agent_render.set_data(self._state[0], 0)
+        self._agent_render.set_data([self._state[0]], [0])
         if iteration is not None:
             self._ax.set_title('Iteration %d' % iteration)
         self._canvas.draw()

@@ -133,7 +133,9 @@ class ValueIteration(object):
         """
 
         """ INSERT YOUR CODE HERE"""
-        v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
+        v = self.value_fun.get_values()
+        v_backup = self.rewards + self.discount * v
+        v_backup = np.sum(v_backup * self.transitions, axis=-1)
         if self.policy_type == 'deterministic':
             next_v = np.max(v_backup, axis=1)
         elif self.policy_type == 'max_ent':
@@ -154,8 +156,9 @@ class ValueIteration(object):
                                     2) Add self.eps to them
         """
 
-        """INSERT YOUR CODE HERE"""
-        v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
+        v = self.value_fun.get_values()
+        v_backup = self.rewards + self.discount * v
+        v_backup = np.sum(v_backup * self.transitions, axis=-1)
         if self.policy_type == 'deterministic':
             pi = np.argmax(v_backup, axis=1)
         elif self.policy_type == 'max_ent':
