@@ -133,12 +133,12 @@ class ValueIteration(object):
         """
 
         """ INSERT YOUR CODE HERE"""
+        v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
         if self.policy_type == 'deterministic':
-            v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
             next_v = np.max(v_backup, axis=1)
         elif self.policy_type == 'max_ent':
-            raise NotImplementedError
-            """ Your code ends here"""
+            v_max = np.max(v_backup, axis=1, keepdims=True)
+            next_v = self.temperature * np.log(np.sum(np.exp((v_backup - v_max) / self.temperature), axis=1)) + v_max.squeeze()
         else:
             raise NotImplementedError
         return next_v
@@ -155,12 +155,13 @@ class ValueIteration(object):
         """
 
         """INSERT YOUR CODE HERE"""
+        v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
         if self.policy_type == 'deterministic':
-            v_backup = np.sum(self.rewards + self.discount * self.transitions * self.value_fun.get_values(), axis=-1)
             pi = np.argmax(v_backup, axis=1)
         elif self.policy_type == 'max_ent':
-            raise NotImplementedError
-            """ Your code ends here"""
+            v_max = np.max(v_backup, axis=1, keepdims=True)
+            v_sm = np.exp((v_backup - v_max) / self.temperature) + self.eps
+            pi = v_sm / np.sum(v_sm, axis=1, keepdims=True)
         else:
             raise NotImplementedError
         return pi
